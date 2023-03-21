@@ -2,161 +2,159 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX 50
+#define MAX_NOME 11
+
+void imprimir_contato(void *pBuffer, int *index);
+int *buscar_contato(void *pBuffer, int *n, char *nome);
+void deletar_contato(void *pBuffer, int *n, char *nome);
+void adicionar_contato(void **pBuffer, int *n);
+void buscar_contato_e_imprimir(void *pBuffer, int *n);
 
 
-void IncluirNome(void **pBuffer, int *count);
-void DeletarNome(void **pBuffer, int *count);
-void BuscarNome(void *pBuffer, int count);
-void ListarDados(void *pBuffer, int count);
 
-int main() {
-    
-    void* pBuffer = NULL;
-    int count = 0;
+void imprimir_contato(void *pBuffer, int *index) {
+    char *pNome = (char *)pBuffer + (*index) * (MAX_NOME + sizeof(int) * 2);
+    int *pIdade = (int*) (pNome + MAX_NOME);
+    int *pTelefone = (int*) (pIdade + 1);
 
-    int opcao;
-    do {
-        printf("\nMenu:\n");
-        printf("1 - Incluir registro\n");
-        printf("2 - Deletar registro\n");
-        printf("3 - Buscar registro\n");
-        printf("4 - Imprimir dados\n");
-        printf("0 - Sair\n");
-        printf("Opcao: ");
-        scanf("%d", &opcao);
-
-        switch (opcao) {
-            case 1:
-                IncluirNome(&pBuffer, &count);
-                break;
-            case 2:
-                DeletarNome(&pBuffer, &count);
-                break;
-            case 3:
-                BuscarNome(pBuffer, count);
-                break;
-            case 4:
-                ListarDados(pBuffer, count);
-                break;
-            case 0:
-                printf("Saindo...\n");
-                break;
-            default:
-                printf("Opcao invalida.\n");
-        }
-    } while (opcao != 0);
-
-    if (pBuffer != NULL) {
-        free(pBuffer);
-    }
-
-    return 0;
+    printf("%s, %d anos, telefone %d\n", pNome, *pIdade, *pTelefone);
 }
 
+int *buscar_contato(void *pBuffer, int *n, char *nome) {
 
-void IncluirNome(void **pBuffer, int *count) {
-    char **info = (char **)*pBuffer;
+    int *i = (int *)malloc(sizeof(int));
 
-    // aloca mais uma linha para armazenar os dados da nova pessoa
-    *pBuffer = realloc(*pBuffer, (*count + 1) * sizeof(char *));
-    info = (char **)*pBuffer;
-
-    // aloca espaço para armazenar o nome, idade e telefone da nova pessoa
-    info[*count] = malloc((MAX + 1) * sizeof(char));
-
-    printf("\nDigite o nome: ");
-    scanf("%s", info[*count]);
-    printf("Digite a idade: ");
-    scanf("%s", info[*count] + strlen(info[*count]) + 1);
-    printf("Digite o telefone: ");
-    scanf("%s", info[*count] + strlen(info[*count]) + strlen(info[*count] + strlen(info[*count]) + 1) + 2);
-
-    (*count)++;
-}
-
-void DeletarNome(void **pBuffer, int *count) {
-    char *info = (char *)*pBuffer;
-    char nome[MAX + 1];
-    int i, j, pos, linha;
-
-    printf("\nDigite o nome a ser removido: ");
-    scanf("%s", nome);
-
-    // percorre a string procurando pelo nome
-    pos = 0;
-    linha = -1;
-    for (i = 0; i < *count; i++) {
-        // encontra o início da linha
-        while (info[pos] != '\0' && info[pos] != '|') pos++;
-        if (info[pos] == '\0') break;
-
-        // compara o nome com a linha atual
-        if (strncmp(info + pos + 1, nome, strlen(nome)) == 0) {
-            linha = i;
-            break;
-        }
-
-        // avança para o início da próxima linha
-        while (info[pos] != '\0' && info[pos] == '|') pos++;
-    }
-
-    if (linha != -1) {
-        // encontra o início da linha a ser deletada
-        for (i = 0, j = 0; i < linha; i++) {
-            while (info[j] != '\0' && info[j] == '|') j++;
-            while (info[j] != '\0' && info[j] != '|') j++;
-        }
-
-        // desaloca a memória da linha a ser deletada
-        free(info + j + 1);
-        info = realloc(info, strlen(info) - strlen(info + j + 1) - 1);
-
-        // atualiza o contador de linhas
-        (*count)--;
-    } else {
-        printf("Nome nao encontrado\n");
-    }
-
-    *pBuffer = info;
-}
-
-void buscarPessoa(void* pBuffer, int count) {
-    char nome[10];
-
-    printf("Digite o nome da pessoa que deseja buscar: ");
-    scanf("%s", nome);
-
-    int i;
-    for (i = 0; i < count; i++) {
-        char* nomeAtual = (char*) pBuffer + i * (sizeof(int) + 10 + 15); // desloca o ponteiro para o nome da pessoa atual
-        if (strcmp(nomeAtual, nome) == 0) {
-            printf("\nDados da pessoa %s:\n", nome);
-            int* idadeAtual = (int*) (nomeAtual + 10); // desloca o ponteiro para a idade da pessoa atual
-            printf("Idade: %d\n", *idadeAtual);
-            char* telefoneAtual = (char*) (idadeAtual + 1); // desloca o ponteiro para o telefone da pessoa atual
-            printf("Telefone: %s\n", telefoneAtual);
-            return;
+    for (*i = 0; *i < *n; (*i)++) {
+        char *pNome =(char *)pBuffer + (*i) * (MAX_NOME + sizeof(int) * 2);
+        if (strcmp(pNome, nome) == 0) {
+            return i;
         }
     }
-
-    printf("Pessoa nao encontrada na agenda.\n");
+    return NULL;
 }
 
-void imprimirDados(void* pBuffer, int count) {
-    if (count == 0) {
-        printf("Agenda vazia.\n");
+void deletar_contato(void *pBuffer, int *n, char *nome) {
+    int *index = buscar_contato(pBuffer, n, nome);
+
+    if (index == NULL) {
         return;
     }
 
-    printf("\nDados dos %d registros na agenda:\n", count);
-    int i;
-    for (i = 0; i < count; i++) {
-        char* nomeAtual = (char*) pBuffer + i * (sizeof(int) + 10 + 15); // desloca o ponteiro para o nome da pessoa atual
-        printf("\nNome: %s\n", nomeAtual);
-        int* idadeAtual = (int*) (nomeAtual + 10); // desloca o ponteiro para a idade da pessoa atual
-        printf("Idade: %d\n", *idadeAtual);
-        char* telefoneAtual = (char*) (idadeAtual + 1); // desloca o ponteiro para o telefone da pessoa atual
-        printf("Telefone: %s\n", telefoneAtual);
+    char *pContato =(char *) pBuffer + *index * (MAX_NOME + sizeof(int) * 2);
+    char *pProximoContato =(char *) pBuffer + (*index + 1) * (MAX_NOME + sizeof(int) * 2);
+
+    memmove(pContato, pProximoContato, (*n - *index - 1) * (MAX_NOME + sizeof(int) * 2));
+
+    (*n)--;
+    pBuffer = realloc(pBuffer, (*n) * (MAX_NOME + sizeof(int) * 2));
+    printf("Contato deletado\n");
+}
+
+void adicionar_contato(void **pBuffer, int *n) {
+    (*n)++;
+    *pBuffer = realloc(*pBuffer, (*n) * (MAX_NOME + sizeof(int) * 2));
+
+    char *nome = (char *) (*pBuffer + ((*n) - 1) * (MAX_NOME + sizeof(int) * 2));
+    int *idade = (int *) (nome + MAX_NOME);
+    int *telefone = (int *) (idade + 1);
+
+
+    printf("Digite o nome (max 10 caracteres): ");
+    scanf("%s", nome);
+
+    printf("Digite a idade: ");
+    scanf("%d", idade);
+
+    printf("Digite o telefone: ");
+    scanf("%d", telefone);
+
+    // Ordenar os contatos por ordem alfabética usando uma heap
+    
+    int *i = (int *)malloc(sizeof(int));
+    *i = *n - 1;
+    while (*i > 0) {
+        int *pai = (int *)malloc(sizeof(int));
+        *pai = (*i - 1) / 2;
+        char *pContato = *pBuffer + (*i) * (MAX_NOME + sizeof(int) * 2);
+        char *pPai = *pBuffer + (*pai) * (MAX_NOME + sizeof(int) * 2);
+
+        if (strncmp(pContato, pPai, MAX_NOME) > 0) {
+            break;
+        }
+
+        // Trocar o contato atual com o pai
+        char *tmp = (char *)malloc((MAX_NOME + sizeof(int) * 2) * sizeof(char));
+        memcpy(tmp, pContato, MAX_NOME + sizeof(int) * 2);
+        memcpy(pContato, pPai, MAX_NOME + sizeof(int) * 2);
+        memcpy(pPai, tmp, MAX_NOME + sizeof(int) * 2);
+
+        *i = *pai;
+    }
+}
+
+void buscar_contato_e_imprimir(void *pBuffer, int *n) {
+    char *nome = (char *)malloc(MAX_NOME * sizeof(char));
+
+    printf("Digite o nome do contato: ");
+    scanf("%s", nome);
+
+    int *index = buscar_contato(pBuffer, n, nome);
+    if (index == NULL) {
+        printf("Contato nao encontrado\n");
+    } else {
+        printf("Contato encontrado: ");
+        imprimir_contato(pBuffer, index);
+    }
+}
+
+int main() {
+    void *pBuffer = malloc(0);
+    int *n = (int *)malloc(sizeof(int));
+    *n = 0;
+    int *opcao = (int *)malloc(sizeof(int));
+    int *i = (int *)malloc(sizeof(int));
+
+    while (1) {
+        printf("1 - Adicionar contato\n");
+        printf("2 - Listar contatos\n");
+        printf("3 - Buscar contato\n");
+        printf("4 - Deletar contato\n");
+        printf("5 - Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", opcao);
+
+        switch (*opcao) {
+            case 1:
+            adicionar_contato(&pBuffer, n);
+            break;
+
+            case 2:
+
+                printf("Contatos:\n");
+                for (*i = 0; *i < *n; (*i)++) {
+                    printf("%d - ", *i + 1);
+                    imprimir_contato(pBuffer, i);
+                }
+                break;
+
+            case 3:
+            buscar_contato_e_imprimir(pBuffer, n);
+            break;
+
+            case 4:
+            char *nome = (char *)malloc(MAX_NOME * sizeof(char));
+            printf("Digite o nome a ser deletado: ");
+            scanf("%s", nome);
+            deletar_contato(pBuffer, n, nome);
+            break;
+
+            case 5:
+                free(pBuffer);
+                return 0;
+                
+           default:
+           printf("Opcao invalida\n");
+
+        }
     }
 }
