@@ -23,7 +23,8 @@ void imprimir_contato(void *pBuffer, int *index) {
 int *buscar_contato(void *pBuffer, int *n, char *nome) {
 
     int *i = (int *)malloc(sizeof(int));
-
+    //int *i = *n;
+    //for (;i* >= 0; (*i)--)
     for (*i = 0; *i < *n; (*i)++) {
         char *pNome =(char *)pBuffer + (*i) * (MAX_NOME + sizeof(int) * 2);
         if (strcmp(pNome, nome) == 0) {
@@ -73,6 +74,8 @@ void adicionar_contato(void **pBuffer, int *n) {
     // Ordenar os contatos por ordem alfabética usando uma heap
     
     int *i = (int *)malloc(sizeof(int));
+    //int *i = *n;
+    // (*i)--;
     *i = *n - 1;
     while (*i > 0) {
         int *pai = (int *)malloc(sizeof(int));
