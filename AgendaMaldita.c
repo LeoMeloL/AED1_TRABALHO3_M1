@@ -109,6 +109,8 @@ void buscar_contato_e_imprimir(void *pBuffer, int *n) {
 
 int main() {
     void *pBuffer = malloc(0);
+   // int *n = (int *) pBuffer;
+  //  *n = 0;
     int *n = (int *)malloc(sizeof(int));
     *n = 0;
     int *opcao = (int *)malloc(sizeof(int));
