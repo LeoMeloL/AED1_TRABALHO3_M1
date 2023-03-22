@@ -57,6 +57,8 @@ void adicionar_contato(void **pBuffer, int *n) {
     char *nome = (char *) (*pBuffer + ((*n) - 1) * (MAX_NOME + sizeof(int) * 2));
     int *idade = (int *) (nome + MAX_NOME);
     int *telefone = (int *) (idade + 1);
+    //char *cabeça = (char *)(*pBuffer *(MAX_NOME + sizeof(int) * 2));
+    //char *Last = (char *)(*pBuffer + (*n) * (MAX_NOME + sizeof(int) × 2));
 
 
     printf("Digite o nome (max 10 caracteres): ");
