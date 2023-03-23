@@ -4,16 +4,8 @@
 
 #define MAX_NOME 11
 
-void imprimir_contato(void *pBuffer, int *index);
-int *buscar_contato(void *pBuffer, int *n, char *nome);
-void deletar_contato(void *pBuffer, int *n, char *nome);
-void adicionar_contato(void **pBuffer, int *n);
-void buscar_contato_e_imprimir(void *pBuffer, int *n);
-
-
-
 void imprimir_contato(void *pBuffer, int *index) {
-    char *pNome = (char *)pBuffer + (*index) * (MAX_NOME + sizeof(int) * 2);
+    char *pNome =(char *)pBuffer + (*index) * (MAX_NOME + sizeof(int) * 2);
     int *pIdade = (int*) (pNome + MAX_NOME);
     int *pTelefone = (int*) (pIdade + 1);
 
@@ -23,11 +15,10 @@ void imprimir_contato(void *pBuffer, int *index) {
 int *buscar_contato(void *pBuffer, int *n, char *nome) {
 
     int *i = (int *)malloc(sizeof(int));
-    //int *i = *n;
-    //for (;i* >= 0; (*i)--)
     for (*i = 0; *i < *n; (*i)++) {
         char *pNome =(char *)pBuffer + (*i) * (MAX_NOME + sizeof(int) * 2);
         if (strcmp(pNome, nome) == 0) {
+
             return i;
         }
     }
@@ -58,9 +49,9 @@ void adicionar_contato(void **pBuffer, int *n) {
     char *nome = (char *) (*pBuffer + ((*n) - 1) * (MAX_NOME + sizeof(int) * 2));
     int *idade = (int *) (nome + MAX_NOME);
     int *telefone = (int *) (idade + 1);
-    //char *cabeça = (char *)(*pBuffer *(MAX_NOME + sizeof(int) * 2));
-    //char *Last = (char *)(*pBuffer + (*n) * (MAX_NOME + sizeof(int) × 2));
-
+    //char *cabeca = (char *)(*pBuffer);
+    //char *last = (char *)(*pBuffer + (*n - 1) * (MAX_NOME + sizeof(int) * 2));
+    int *i = (int *)malloc(sizeof(int));
 
     printf("Digite o nome (max 10 caracteres): ");
     scanf("%s", nome);
@@ -72,29 +63,23 @@ void adicionar_contato(void **pBuffer, int *n) {
     scanf("%d", telefone);
 
     // Ordenar os contatos por ordem alfabética usando uma heap
-    
-    int *i = (int *)malloc(sizeof(int));
-    //int *i = *n;
-    // (*i)--;
-    *i = *n - 1;
-    while (*i > 0) {
-        int *pai = (int *)malloc(sizeof(int));
-        *pai = (*i - 1) / 2;
-        char *pContato = *pBuffer + (*i) * (MAX_NOME + sizeof(int) * 2);
-        char *pPai = *pBuffer + (*pai) * (MAX_NOME + sizeof(int) * 2);
+    char *heap = (char *) malloc((*n) * (MAX_NOME + sizeof(int) * 2));
+    memcpy(heap, *pBuffer, (*n) * (MAX_NOME + sizeof(int) * 2));
 
-        if (strncmp(pContato, pPai, MAX_NOME) > 0) {
-            break;
+    for (*i = 1; *i < *n; (*i)++) {
+        char *temp = (char *) malloc((MAX_NOME + sizeof(int) * 2));
+        memcpy(temp, heap + *i * (MAX_NOME + sizeof(int) * 2), MAX_NOME + sizeof(int) * 2);
+        int *j = (int *)malloc(sizeof(int));
+        *j = *i - 1;
+        while (*j >= 0 && strcmp(temp, heap + *j * (MAX_NOME + sizeof(int) * 2)) < 0) {
+            memcpy(heap + (*j + 1) * (MAX_NOME + sizeof(int) * 2), heap + *j * (MAX_NOME + sizeof(int) * 2), MAX_NOME + sizeof(int) * 2);
+            (*j)--;
         }
-
-        // Trocar o contato atual com o pai
-        char *tmp = (char *)malloc((MAX_NOME + sizeof(int) * 2) * sizeof(char));
-        memcpy(tmp, pContato, MAX_NOME + sizeof(int) * 2);
-        memcpy(pContato, pPai, MAX_NOME + sizeof(int) * 2);
-        memcpy(pPai, tmp, MAX_NOME + sizeof(int) * 2);
-
-        *i = *pai;
+        memcpy(heap + (*j + 1) * (MAX_NOME + sizeof(int) * 2), temp, MAX_NOME + sizeof(int) * 2);
     }
+
+    memcpy(*pBuffer, heap, (*n) * (MAX_NOME + sizeof(int) * 2));
+    free(heap);
 }
 
 void buscar_contato_e_imprimir(void *pBuffer, int *n) {
@@ -114,12 +99,10 @@ void buscar_contato_e_imprimir(void *pBuffer, int *n) {
 
 int main() {
     void *pBuffer = malloc(0);
-   // int *n = (int *) pBuffer;
-  //  *n = 0;
     int *n = (int *)malloc(sizeof(int));
     *n = 0;
     int *opcao = (int *)malloc(sizeof(int));
-    int *i = (int *)malloc(sizeof(int));
+    int *i = (int* )malloc(sizeof(int));
 
     while (1) {
         printf("1 - Adicionar contato\n");
@@ -158,9 +141,8 @@ int main() {
             case 5:
                 free(pBuffer);
                 return 0;
-                
-           default:
-           printf("Opcao invalida\n");
+                default:
+                printf("Opcao invalida\n");
 
         }
     }
