@@ -48,10 +48,10 @@ int main() {
                 Buscar_Contato_e_Imprimir( pBuffer, n, pInicio );
                 break;
             case 4:
-                char nome[MAX_NOME];
+                char *nome = ( char * )malloc( sizeof ( char ) );
                 printf("Digite o nome do contato que deseja deletar: ");
                 scanf("%s", nome);
-                Deletar_Contato( pInicio, n, nome, pFim );
+                Deletar_Contato( pBuffer, n, nome, pFim );
                 pInicio = ( char * )pBuffer;
                 pFim = ( char * )pBuffer + ( *n - 1 ) * ( MAX_NOME + sizeof(int) * 2 );
                 break;
@@ -59,6 +59,7 @@ int main() {
                 free( pBuffer );
                 free( n );
                 free( opcao );
+                free( nome );
                 return 0;
             default:
                 printf("Opcao invalida\n");
@@ -117,7 +118,7 @@ void Imprimir_Contato( void *pBuffer ) {
 }
 
 char *Buscar_Contato( void *pBuffer, int *n, char *nome, char *pInicio ) {
-    char *pContato = pInicio;
+    char *pContato = (char *)pBuffer;
     while ( pContato <= ( char * )pBuffer + ( *n - 1 ) * ( MAX_NOME + sizeof ( int ) * 2 ) ) {
         if ( strcmp( nome, pContato ) == 0 ) {
             return pContato;
@@ -129,30 +130,17 @@ char *Buscar_Contato( void *pBuffer, int *n, char *nome, char *pInicio ) {
 }
 
 void Buscar_Contato_e_Imprimir( void *pBuffer, int *n, char *pInicio ) {
-    void *start = pInicio;
-    void *check = pInicio;
-    char *nome = pBuffer;
-
-    printf("Digite o nome do contato: ");
+    char *nome = (char *)malloc(sizeof(char));
+    printf("Digite o nome do contato que deseja buscar: ");
     scanf("%s", nome);
 
-    while ( start != NULL ){
-        check += MAX_NOME * sizeof( char );
-        if (strcmp( nome,start ) == 0){
-            printf("\nNome: %s", ( char * )start);
-            start += MAX_NOME * sizeof( char );
-            printf("\nIdade: %d", *( int *  )start);
-            start += sizeof( int );
-            printf("\nTelefone: %d", *( int * )start);
-            start += sizeof( int );
-            printf("\n");
-            return;
-        }
-        start += ( MAX_NOME * 10 ) + ( sizeof( int ) * 2 );
-        check = start;
+    char *pContato = Buscar_Contato( pBuffer, n, nome, pInicio );
+    if (pContato == NULL) {
+        printf("Contato nao encontrado\n");
+    } else {
+        Imprimir_Contato(pContato);
     }
-    printf("Nome nao encontrado");
-    return;
+    free(nome);
 }
 
 void Deletar_Contato( void *pBuffer, int *n, char *nome, char *pInicio ) {
